@@ -1,8 +1,20 @@
+using cadastro_emprestimo.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+// 1. Lembre-se de usar exatamente o nome da sua classe de contexto (ApplicationDbContext)
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+    // 2. Buscamos a string que está dentro do appsettings.json
+    var connectionString = builder.Configuration.GetConnectionString("ConexaoMysql");
+    
+    // 3. Ativamos o MySQL usando a versão correta detectada automaticamente
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -18,12 +30,11 @@ app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapStaticAssets();
+app.UseStaticFiles();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 
 app.Run();
